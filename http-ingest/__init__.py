@@ -9,6 +9,8 @@ from azure.eventgrid.aio import EventGridPublisherClient
 
 from nacl.signing import VerifyKey
 
+default_response_payload = json.dumps({"type": 5})
+
 class InteractionType:
     PING = 1
     APPLICATION_COMMAND = 2
@@ -47,4 +49,5 @@ async def main(request: func.HttpRequest) -> func.HttpResponse:
     async with producer:
         await producer.send(data)
 
-    return func.HttpResponse(status_code=204)
+    return func.HttpResponse(json.dumps({"type": 4, "data": {"content": f"```json\n{json.dumps(data, indent=4)}\n```"}}))
+    #return func.HttpResponse(default_response_payload)
