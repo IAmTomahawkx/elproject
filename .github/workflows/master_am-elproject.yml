@@ -65,6 +65,6 @@ jobs:
           app-name: 'am-elproject'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7B56A221156944BF813D55DB8D96AF4C }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_913AA8979F8340C98B4D28E014560CB2 }}
           scm-do-build-during-deployment: true
           enable-oryx-build: true
