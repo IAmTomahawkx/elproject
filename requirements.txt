@@ -6,3 +6,5 @@ azure-functions
 azure-eventgrid
 PyNaCl
 aiohttp
+typing-extensions
+yarl
