@@ -17,7 +17,7 @@ class Unauthorized(Exception):
 
 async def make_request(session: aiohttp.ClientSession, route: str, method: Literal["GET", "PUT", "POST", "PATCH", "DELETE"], body: Optional[Dict[str, Any]]=None) -> Optional[dict]:
     for attempt in range(5):
-        async with session.request(method, base / route, json=body, headers={"Authorization": f"Bot {os.environ['DiscordBotToken']}"}) as resp:
+        async with session.request(method, base / route, json=body, headers={"Authorization": f"Bot {os.environ['DiscordBotToken']}", "Content-Type": "application/json"}) as resp:
             if resp.status == 204:
                 return None
             
