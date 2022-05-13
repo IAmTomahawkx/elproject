@@ -16,7 +16,7 @@ class Unauthorized(Exception):
     pass
 
 async def make_request(session: aiohttp.ClientSession, route: str, method: Literal["GET", "PUT", "POST", "PATCH", "DELETE"], body: Optional[Dict[str, Any]]=None) -> Optional[dict]:
-    while True:
+    for attempt in range(5):
         async with session.request(method, base / route, json=body, headers={"Authorization": f"Bot {os.environ['DiscordBotToken']}"}) as resp:
             if resp.status == 204:
                 return None
@@ -25,7 +25,8 @@ async def make_request(session: aiohttp.ClientSession, route: str, method: Liter
                 raise Unauthorized()
             
             elif resp.status == 429:
-                await asyncio.sleep(float(resp.headers["X-RateLimit-Reset"]) - datetime.utcnow().timestamp())
+                logging.warning("Sleeping due to 429, bucket %s, reset %s, headers %s", resp.headers.get("X-RateLimit-Bucket"), resp.headers.get("X-RateLimit-Reset"), dict(resp.headers))
+                await asyncio.sleep(float(resp.headers.get("X-RateLimit-Reset") or 5) - datetime.utcnow().timestamp())
                 continue
 
             elif resp.status == 200:
