@@ -33,8 +33,6 @@ def verify_key(raw_body: bytes, signature: str, timestamp: str, client_public_ke
 
 async def main(request: func.HttpRequest) -> func.HttpResponse:
     public_key = os.environ["DiscordPublicKey"]
-    logging.info('Python HTTP trigger function processed a request.')
-
     signature = request.headers.get('X-Signature-Ed25519')
     timestamp = request.headers.get('X-Signature-Timestamp')
     body = request.get_body()
@@ -53,7 +51,7 @@ async def main(request: func.HttpRequest) -> func.HttpResponse:
         payload = {
             "subject": "/slashcommand",
             "id": str(uuid.uuid4()),
-            "topic": "/subscriptions/978bba80-f0c5-4ab6-bf63-959d6fa50ab5/resourceGroups/elproject/providers/Microsoft.EventGrid/topics/slash-ingest",
+            "topic": os.environ["EventGridTopic"],
             "eventType": "slashcommand.created",
             "eventTime": datetime.utcnow().isoformat(),
             "data": data,
@@ -62,13 +60,4 @@ async def main(request: func.HttpRequest) -> func.HttpResponse:
         }
         await producer.send(payload)
 
-    r = {
-            "tts": False,
-            "content": f"```json\n{json.dumps(data, indent=4)}\n```",
-            "embeds": [],
-            "allowed_mentions": { "parse": [] }
-        }
-    resp = json.dumps(r)
-    logging.info("processed response: %s", resp)
-    return func.HttpResponse(resp)
-    #return func.HttpResponse(default_response_payload)
+    return func.HttpResponse(default_response_payload, headers={"Content-Type": "application/json"})
