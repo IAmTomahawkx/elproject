@@ -1,6 +1,9 @@
+from datetime import datetime
 import os
 import logging
 import json
+import uuid
+import aiohttp
 
 import azure.functions as func
 from azure.core.credentials import AzureKeyCredential
@@ -47,7 +50,25 @@ async def main(request: func.HttpRequest) -> func.HttpResponse:
     producer = EventGridPublisherClient(os.environ["EventGridConnectionURL"], AzureKeyCredential(os.environ["EventGridConnectionKey"]))
 
     async with producer:
-        await producer.send(data)
+        payload = {
+            "subject": "/slashcommand",
+            "id": str(uuid.uuid4()),
+            "topic": "/subscriptions/978bba80-f0c5-4ab6-bf63-959d6fa50ab5/resourceGroups/elproject/providers/Microsoft.EventGrid/topics/slash-ingest",
+            "eventType": "slashcommand.created",
+            "eventTime": datetime.utcnow().isoformat(),
+            "data": data,
+            "dataVersion": "1",
+            "metadataVersion": "1"
+        }
+        await producer.send(payload)
 
-    return func.HttpResponse(json.dumps({"type": 4, "data": {"content": f"```json\n{json.dumps(data, indent=4)}\n```"}}))
+    r = {
+            "tts": False,
+            "content": f"```json\n{json.dumps(data, indent=4)}\n```",
+            "embeds": [],
+            "allowed_mentions": { "parse": [] }
+        }
+    resp = json.dumps(r)
+    logging.info("processed response: %s", resp)
+    return func.HttpResponse(resp)
     #return func.HttpResponse(default_response_payload)
