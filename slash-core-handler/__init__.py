@@ -25,11 +25,13 @@ async def make_request(session: aiohttp.ClientSession, route: str, method: Liter
                 raise Unauthorized()
             
             elif resp.status == 429:
-                await asyncio.sleep(float(resp.headers["X-Ratelimit-Reset"]) - datetime.utcnow().timestamp())
+                await asyncio.sleep(float(resp.headers["X-RateLimit-Reset"]) - datetime.utcnow().timestamp())
                 continue
 
             elif resp.status == 200:
                 return await resp.json()
+            else:
+                raise RuntimeError(f"Unknown status code {resp.status}: {await resp.json()}")
 
 
 
@@ -46,6 +48,6 @@ async def main(event: func.EventGridEvent):
     async with aiohttp.ClientSession() as session:
         await make_request(session, f"webhooks/{os.environ['DiscordApplicationID']}/{data['token']}", "POST", {
             "content": f"Sent from Event Grid consumer, option1 is {option1}",
-            "allowedMentions": { "parse": [] }
+            "allowed_mentions": { "parse": [] }
             })
     
