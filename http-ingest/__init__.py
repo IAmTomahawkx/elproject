@@ -13,6 +13,7 @@ from azure.eventgrid.aio import EventGridPublisherClient
 from nacl.signing import VerifyKey
 
 default_response_payload = json.dumps({"type": 5})
+json_ct = {"Content-Type": "application/json"}
 
 class InteractionType:
     PING = 1
@@ -43,7 +44,7 @@ async def main(request: func.HttpRequest) -> func.HttpResponse:
     if data["type"] == InteractionType.PING:
         return func.HttpResponse(json.dumps({
             "type": 1
-        }))
+        }), headers=json_ct)
 
     producer = EventGridPublisherClient(os.environ["EventGridConnectionURL"], AzureKeyCredential(os.environ["EventGridConnectionKey"]))
 
@@ -60,4 +61,4 @@ async def main(request: func.HttpRequest) -> func.HttpResponse:
         }
         await producer.send(payload)
 
-    return func.HttpResponse(default_response_payload, headers={"Content-Type": "application/json"})
+    return func.HttpResponse(default_response_payload, headers=json_ct)
