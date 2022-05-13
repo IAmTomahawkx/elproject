@@ -7,8 +7,8 @@ import logging
 import aiohttp
 
 import azure.functions as func
-from typing import Literal, Dict, Any, Optional
-from .types import SlashCommand
+from typing import Literal, Dict, Any, Optional, cast
+from .types import *
 
 base = yarl.URL("https://discord.com/api/v10/")
 
@@ -35,7 +35,17 @@ async def make_request(session: aiohttp.ClientSession, route: str, method: Liter
 
 async def main(event: func.EventGridEvent):
     data: SlashCommand = event.get_json()
+    options: ListOptionsData = cast(ListOptionsData, data.get('options'))
+    opts: Dict[str, OptionsData] = {}
+
+    for x in options:
+        opts[x['name']] = x
+    
+    option1 = opts['option1']['value']
 
     async with aiohttp.ClientSession() as session:
-        await make_request(session, f"webhooks/{os.environ['DiscordApplicationID']}/{data['token']}", "POST", {"content": "Umbra Sucks"})
+        await make_request(session, f"webhooks/{os.environ['DiscordApplicationID']}/{data['token']}", "POST", {
+            "content": f"Sent from Event Grid consumer, option1 is {option1}",
+            "allowedMentions": { "parse": [] }
+            })
     

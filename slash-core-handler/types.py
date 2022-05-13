@@ -291,8 +291,30 @@ class ResolvedData(TypedDict):
     messages: Dict[str, Message]
     attachments: Dict[str, Attachment]
 
-class OptionsData(TypedDict):
-    ...
+
+class BaseOptionsData(TypedDict):
+    name: str
+    focused: NotRequired[bool]
+
+class OptionsDataString(BaseOptionsData):
+    type: Literal[3]
+    value: str
+
+class OptionsDataSnowflake(BaseOptionsData):
+    type: Literal[6, 7, 8, 9, 11]
+    value: Snowflake
+
+class OptionsDataBool(BaseOptionsData):
+    type: Literal[5]
+    value: bool
+
+class OptionsDataNumber(BaseOptionsData):
+    type: Literal[4, 10]
+    value: Union[int, bool]
+
+
+OptionsData = Union[OptionsDataString, OptionsDataSnowflake, OptionsDataBool, OptionsDataNumber]
+ListOptionsData = List[OptionsData]
 
 class SlashCommand(TypedDict):
     id: Snowflake
@@ -301,7 +323,7 @@ class SlashCommand(TypedDict):
     application_id: Snowflake
     type: Literal[1]
     resolved: NotRequired[ResolvedData]
-    options: NotRequired[OptionsData]
+    options: NotRequired[ListOptionsData]
     guild_id: NotRequired[int]
     locale: NotRequired[str]
     guild_locale: NotRequired[str]
