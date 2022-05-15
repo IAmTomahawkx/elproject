@@ -65,7 +65,7 @@ async def main(request: func.HttpRequest) -> func.HttpResponse:
         "type": 4,
         "data": {
             "content": f"```\n{json.dumps(data, indent=4).replace(data['token'], '{TOKEN OMITTED}')}\n```",
-            "flags": 64
         }
     })
+    logging.info(os.environ['QueueConnectionString'])
     return func.HttpResponse(response_payload, headers=json_ct)

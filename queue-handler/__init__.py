@@ -56,4 +56,3 @@ async def main(msg: func.ServiceBusMessage):
             "allowed_mentions": { "parse": [] }
             })
     
-
