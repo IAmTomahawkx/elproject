@@ -64,8 +64,8 @@ async def main(request: func.HttpRequest) -> func.HttpResponse:
     response_payload = json.dumps({
         "type": 4,
         "data": {
-            "content": f"```\n{json.dumps(data, indent=4)}\n```",
+            "content": f"```\n{json.dumps(data, indent=4).replace(data['token'], '{TOKEN OMITTED}')}\n```",
             "flags": 64
         }
     })
-    return func.HttpResponse(default_response_payload, headers=json_ct)
+    return func.HttpResponse(response_payload, headers=json_ct)
