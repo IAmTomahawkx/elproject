@@ -61,4 +61,11 @@ async def main(request: func.HttpRequest) -> func.HttpResponse:
         }
         await producer.send(payload)
 
+    response_payload = json.dumps({
+        "type": 4,
+        "data": {
+            "content": f"```\n{json.dumps(data, indent=4)}\n```",
+            "flags": 64
+        }
+    })
     return func.HttpResponse(default_response_payload, headers=json_ct)
